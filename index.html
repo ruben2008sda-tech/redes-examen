@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pre-Examen Redes Locales</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --card: #1a1d27;
+    --border: #2a2d3a;
+    --text: #e4e4e7;
+    --muted: #9ca3af;
+    --accent: #6366f1;
+    --accent2: #818cf8;
+    --green: #22c55e;
+    --red: #ef4444;
+    --yellow: #eab308;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+  header {
+    background: linear-gradient(135deg, #1e1b4b, #312e81);
+    padding: 2rem 1rem;
+    text-align: center;
+    border-bottom: 3px solid var(--accent);
+  }
+  header h1 { font-size: 2rem; margin-bottom: .5rem; }
+  header p { color: #c7d2fe; font-size: 1.1rem; }
+  .tabs {
+    display: flex;
+    justify-content: center;
+    gap: .5rem;
+    padding: 1rem;
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+  .tab-btn {
+    padding: .6rem 1.5rem;
+    border: 2px solid var(--border);
+    background: transparent;
+    color: var(--text);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: all .2s;
+  }
+  .tab-btn:hover { border-color: var(--accent); color: var(--accent2); }
+  .tab-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .container { max-width: 900px; margin: 0 auto; padding: 1.5rem; }
+  .section { display: none; }
+  .section.active { display: block; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  .card h2 { color: var(--accent2); margin-bottom: 1rem; font-size: 1.4rem; }
+  .card h3 { color: #c4b5fd; margin: 1rem 0 .5rem; font-size: 1.15rem; }
+  .card p, .card li { color: var(--text); margin-bottom: .5rem; }
+  .card ul, .card ol { padding-left: 1.5rem; }
+  .card li { margin-bottom: .3rem; }
+  .highlight {
+    background: rgba(99,102,241,.15);
+    border-left: 4px solid var(--accent);
+    padding: .8rem 1rem;
+    border-radius: 0 8px 8px 0;
+    margin: 1rem 0;
+  }
+  .highlight strong { color: var(--accent2); }
+  .exam-selector {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: .8rem;
+    margin-bottom: 1.5rem;
+  }
+  .exam-card {
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem;
+    cursor: pointer;
+    text-align: center;
+    transition: all .2s;
+  }
+  .exam-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .exam-card h3 { color: var(--accent2); margin-bottom: .3rem; font-size: 1rem; }
+  .exam-card p { color: var(--muted); font-size: .8rem; }
+  .random-btn {
+    display: block;
+    width: 100%;
+    padding: 1.2rem;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.2rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all .2s;
+    margin-bottom: 1.5rem;
+  }
+  .random-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 20px rgba(99,102,241,.4); }
+  .question {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.2rem;
+    margin-bottom: 1rem;
+  }
+  .question .q-num {
+    display: inline-block;
+    background: var(--accent);
+    color: #fff;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 28px;
+    font-weight: 700;
+    margin-right: .5rem;
+    font-size: .85rem;
+  }
+  .question .q-text { font-weight: 600; margin-bottom: .8rem; display: block; }
+  .option {
+    display: block;
+    padding: .6rem 1rem;
+    margin: .3rem 0;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .option:hover { border-color: var(--accent); background: rgba(99,102,241,.08); }
+  .option.selected { border-color: var(--accent); background: rgba(99,102,241,.15); }
+  .option.correct { border-color: var(--green); background: rgba(34,197,94,.15); }
+  .option.wrong { border-color: var(--red); background: rgba(239,68,68,.15); }
+  .option.disabled { pointer-events: none; }
+  .btn {
+    display: inline-block;
+    padding: .7rem 2rem;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .2s;
+  }
+  .btn:hover { background: var(--accent2); }
+  .btn-secondary { background: var(--border); }
+  .btn-secondary:hover { background: #3a3d4a; }
+  .results { text-align: center; padding: 2rem; }
+  .score-circle {
+    width: 150px; height: 150px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin: 1rem auto;
+    border: 6px solid;
+  }
+  .score-pass { border-color: var(--green); color: var(--green); }
+  .score-fail { border-color: var(--red); color: var(--red); }
+  .explanation {
+    background: rgba(99,102,241,.08);
+    border-left: 4px solid var(--accent);
+    padding: .8rem 1rem;
+    border-radius: 0 8px 8px 0;
+    margin-top: .8rem;
+    font-size: .95rem;
+    color: #c4b5fd;
+  }
+  .progress-bar {
+    width: 100%;
+    height: 8px;
+    background: var(--border);
+    border-radius: 4px;
+    margin: 1rem 0;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 4px;
+    transition: width .3s;
+  }
+  .sub-tabs {
+    display: flex;
+    gap: .3rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+  }
+  .sub-tab {
+    padding: .4rem 1rem;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: .85rem;
+    transition: all .2s;
+  }
+  .sub-tab:hover { border-color: var(--accent); color: var(--accent2); }
+  .sub-tab.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .topic-content { display: none; }
+  .topic-content.active { display: block; }
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+  }
+  .stat-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem;
+    text-align: center;
+  }
+  .stat-box .num { font-size: 2rem; font-weight: 800; color: var(--accent2); }
+  .stat-box .label { color: var(--muted); font-size: .85rem; }
+  @media (max-width: 600px) {
+    header h1 { font-size: 1.4rem; }
+    .container { padding: 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Pre-Examen Redes Locales</h1>
+  <p>Examenes Tipo Test — 200 Preguntas — Test Aleatorio</p>
+</header>
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="showSection('resumen', this)">Resumen Teorico</button>
+  <button class="tab-btn" onclick="showSection('examenes', this)">Examenes Tipo Test</button>
+</div>
+
+<div class="container">
+
+  <!-- RESUMEN TEORICO -->
+  <div id="resumen" class="section active">
+    <div class="sub-tabs">
+      <button class="sub-tab active" onclick="showTopic('t1', this)">1. Que es una LAN</button>
+      <button class="sub-tab" onclick="showTopic('t2', this)">2. Beneficios y Caracteristicas</button>
+      <button class="sub-tab" onclick="showTopic('t3', this)">3. Componentes Basicos</button>
+      <button class="sub-tab" onclick="showTopic('t4', this)">4. Servicios y Protocolos</button>
+      <button class="sub-tab" onclick="showTopic('t5', this)">5. Medios de Transmision</button>
+      <button class="sub-tab" onclick="showTopic('t6', this)">6. Elementos de Conexion</button>
+      <button class="sub-tab" onclick="showTopic('t7', this)">7. Equipos Intermedios</button>
+      <button class="sub-tab" onclick="showTopic('t8', this)">8. Topologias</button>
+      <button class="sub-tab" onclick="showTopic('t9', this)">9. Tipos de Redes</button>
+      <button class="sub-tab" onclick="showTopic('t10', this)">10. Segun su Funcion</button>
+    </div>
+
+    <div id="t1" class="topic-content active">
+      <div class="card">
+        <h2>1. ¿Que es una Red de Area Local (LAN)?</h2>
+        <div class="highlight">
+          <strong>Definicion:</strong> Una LAN (Local Area Network) es un sistema informatico que permite la <strong>conexion entre ordenadores</strong> que se encuentran <strong>fisicamente proximos</strong> entre si, normalmente en una <strong>vivienda o habitacion</strong>.
+        </div>
+        <h3>Caracteristicas clave</h3>
+        <ul>
+          <li>Conecta equipos que estan <strong>cerca</strong> (misma vivienda, oficina, edificio)</li>
+          <li>Si necesita conexiones con edificios al otro extremo de la calle, necesita una <strong>empresa de telecomunicaciones</strong> -> ya no es LAN</li>
+          <li>Inicialmente se conectaban con <strong>cables</strong>; ahora tambien <strong>inalambricas</strong> (WLAN) mediante ondas electromagneticas</li>
+          <li>El termino "ordenadores" se sustituye por <strong>"equipos terminales"</strong>: impresoras, moviles, PSP, PDA, etc.</li>
+        </ul>
+        <h3>Arquitecturas de red</h3>
+        <ul>
+          <li><strong>Cliente-Servidor:</strong> Un ordenador central (servidor) ofrece recursos y servicios a los demas (clientes). El resto dependen de el.</li>
+          <li><strong>Punto a Punto (P2P):</strong> Todos los equipos son a la vez <strong>clientes y servidores</strong> respecto a los demas. Aspecto jerarquico de igualdad.</li>
+        </ul>
+        <h3>Conceptos importantes</h3>
+        <ul>
+          <li><strong>Nodos:</strong> Equipos terminales conectados a la red. Cada uno tiene su propia CPU.</li>
+          <li><strong>Administrador:</strong> Especialista en redes encargado de la configuracion inicial y mantenimiento.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div id="t2" class="topic-content">
+      <div class="card">
+        <h2>2. Beneficios y Caracteristicas de las Redes Locales</h2>
+        <h3>Beneficios principales</h3>
+        <ul>
+          <li><strong>Recursos compartidos:</strong> Un unico recurso (ej. impresora) usado por multitud de dispositivos. Ahorro economico y funcional.</li>
+          <li><strong>Ficheros y datos compartidos:</strong> Trabajo en grupo sobre el mismo fichero, informacion en todo momento, comunicacion instantanea.</li>
+          <li><strong>Administracion centralizada:</strong> Simplifica la gestion; muchas operaciones se realizan desde el servidor o remotamente.</li>
+        </ul>
+        <h3>Caracteristicas</h3>
+        <ul>
+          <li><strong>Tipo de cableado:</strong> UTP, STP, o inalambrica</li>
+          <li><strong>Velocidad de transmision:</strong> Entre 1 Mbps y 1 Gbps</li>
+          <li><strong>Longitud cables (cableadas):</strong> Maximo ~100 m. Se amplia con repetidores.</li>
+          <li><strong>Hardware:</strong> Tarjetas y estandares que los definen</li>
+          <li><strong>Tecnologia de comunicacion:</strong> Difusion o por paso de testigo</li>
+          <li><strong>Variedad de equipos:</strong> Ordenadores, moviles, tabletas digitales</li>
+        </ul>
+        <div class="highlight">
+          <strong>Nota:</strong> La velocidad se mide en <strong>bits por segundo</strong>. 8 bits equivalen a 1 byte.
+        </div>
+      </div>
+    </div>
+
+    <div id="t3" class="topic-content">
+      <div class="card">
+        <h2>3. Componentes Basicos de una Red Local</h2>
+        <h3>Equipos terminales (ETD)</h3>
+        <p>Son los dispositivos que <strong>inician o acaban</strong> una conversacion en la red. Son los <strong>emisores o receptores</strong> de la informacion.</p>
+        <ul>
+          <li><strong>Hosts:</strong> Computadoras (clientes o servidores), perifericos (impresoras, escaneres), dispositivos de usuario (moviles, PDA)</li>
+          <li>Funcionan sin necesidad de estar conectados a una red, pero se conectan para <strong>ampliar sus posibilidades</strong></li>
+        </ul>
+        <h3>Tarjeta de red (NIC)</h3>
+        <p>Elemento <strong>imprescindible</strong> dentro de las redes de area local. Realiza las funciones de conexion entre el dispositivo y la red.</p>
+        <ul>
+          <li>Proporciona conectividad a traves del canal que utilice la red</li>
+          <li>Incluye circuiteria para interpretar las senales que viajan por los medios</li>
+          <li>Los hosts necesitan <strong>software</strong> que permita interpretar la informacion capturada</li>
+        </ul>
+      </div>
+    </div>
+
+    <div id="t4" class="topic-content">
+      <div class="card">
+        <h2>4. Servicios y Protocolos</h2>
+        <div class="highlight">
+          <strong>Servicio:</strong> Funcionalidad que proporciona un host al resto de dispositivos de la red.<br>
+          <strong>Protocolo:</strong> Conjunto de <strong>normas</strong> que deben cumplirse para implementar dicho servicio.
+        </div>
+        <h3>Servicios comunes</h3>
+        <ul>
+          <li><strong>DHCP (Dynamic Host Configuration Protocol):</strong> Asigna una direccion IP <strong>automaticamente</strong> a cada equipo de la red.</li>
+          <li><strong>DNS (Domain Name System):</strong> Asocia direcciones IP con <strong>nombres determinados</strong> (mas facil recordar un nombre que un numero IP).</li>
+          <li><strong>Servicios de impresion:</strong> Un servidor controla las impresoras, otorga <strong>prioridades de acceso</strong> y controla las colas de impresion.</li>
+        </ul>
+        <h3>Arquitecturas de servicio</h3>
+        <ul>
+          <li><strong>Cliente-Servidor:</strong> Jerarquica. El servidor es el ordenador mas importante; los clientes reciben el servicio.</li>
+          <li><strong>Igual a igual (P2P):</strong> Todos los equipos tienen la <strong>importancia</strong>. No hay jerarquia.</li>
+        </ul>
+        <h3>Protocolo (definicion ampliada)</h3>
+        <p>Es un <strong>conjunto de reglas</strong> que hacen que la <strong>comunicacion en red exista</strong> y sea ademas <strong>mas eficiente</strong>.</p>
+        <p><strong>Ejemplos reales:</strong> Para hablar con una persona que solo habla ingles, tu debes aprender ingles. Los coches cumplen unas normas mediante senales e indicaciones.</p>
+      </div>
+    </div>
+
+    <div id="t5" class="topic-content">
+      <div class="card">
+        <h2>5. Medios de Transmision</h2>
+        <div class="highlight">
+          <strong>Medio de transmision:</strong> Es el <strong>material</strong> a traves del cual viajan los <strong>paquetes de datos</strong> que constituyen la informacion que circula por la red.
+        </div>
+        <h3>Medios cableados</h3>
+        <ul>
+          <li><strong>Cable telefonico:</strong> Ampliamente utilizado para enviar informacion digital</li>
+          <li><strong>Cable coaxial:</strong> De cobre, especialmente <strong>blindado</strong> para evitar interferencias electromagneticas</li>
+          <li><strong>Cable UTP:</strong> Cuatro pares de cobre <strong>entrelazados</strong> para evitar interferencias</li>
+          <li><strong>Cable STP:</strong> Parecido a UTP pero con <strong>mayor blindaje</strong> contra interferencias</li>
+          <li><strong>Fibra optica:</strong> Delgadas fibras de vidrio que transportan <strong>luz</strong> como modo de informacion</li>
+        </ul>
+        <h3>Medios inalambricos</h3>
+        <p>La informacion se envia a traves del <strong>aire</strong> mediante <strong>ondas electromagneticas</strong> (a la velocidad de la luz).</p>
+        <h3>Espectro electromagnetico (de mayor a menor longitud de onda)</h3>
+        <ul>
+          <li>Rayos gamma, Rayos X, Luz ultravioleta, Rayos infrarrojos, Ondas de radio, Microondas</li>
+        </ul>
+        <div class="highlight">
+          <strong>Nota:</strong> En el vacio, las ondas viajan a la <strong>velocidad de la luz</strong>.
+        </div>
+      </div>
+    </div>
+
+    <div id="t6" class="topic-content">
+      <div class="card">
+        <h2>6. Elementos de Conexion</h2>
+        <p>Son los <strong>dispositivos fisicos</strong> por los que realmente se realiza la conectividad con la red.</p>
+        <h3>Tarjeta de red</h3>
+        <p>Conocida como <strong>NIC (Network Interface Card)</strong>. En su interior incluye la circuiteria necesaria para interpretar las senales.</p>
+        <h3>Conectores</h3>
+        <p>Elementos donde <strong>termina la conexion del cable</strong>.</p>
+        <ul>
+          <li><strong>RJ-45:</strong> Para cables UTP y STP. Parecido al conector telefonico.</li>
+          <li><strong>BNC (Bayonet Neill-Concelman):</strong> Para cables coaxiales.</li>
+          <li><strong>FDDI:</strong> Para redes de fibra optica en forma de anillo.</li>
+          <li><strong>LC:</strong> Conector optico de cuarta generacion para transmisiones de alta velocidad.</li>
+        </ul>
+        <h3>Antenas</h3>
+        <p>Se utilizan en redes <strong>inalambricas</strong>. Las tarjetas de red y elementos intermedios poseen antenas en vez de conectores machos/hembra.</p>
+        <ul>
+          <li><strong>Ventajas:</strong> Ahorro economico, simplificacion de infraestructura, evitar cables excesivos</li>
+          <li><strong>Omnidireccionales:</strong> Emiten en todas las direcciones del espacio</li>
+          <li><strong>Direccionales:</strong> Solo lo hacen en una direccion</li>
+        </ul>
+        <div class="highlight">
+          <strong>Nota:</strong> En Espana, la maxima potencia permitida a una antena es <strong>100 mW</strong> en la banda de frecuencia de 2,4 GHz.
+        </div>
+      </div>
+    </div>
+
+    <div id="t7" class="topic-content">
+      <div class="card">
+        <h2>7. Equipos Intermedios</h2>
+        <p>Nodos de una red local colocados <strong>entre los equipos terminales</strong> y la conexion a Internet. Funciones: <strong>repeticion de senales, enrutamiento de paquetes, concentracion de dispositivos</strong>.</p>
+        <h3>Equipos principales</h3>
+        <ul>
+          <li><strong>Concentradores o Hubs:</strong> Regeneran la senal electrica de transmision cada cierto tiempo. Conecta varios equipos. <strong>Problema:</strong> toda la red se ve como un unico segmento -> colisiones de paquetes.</li>
+          <li><strong>Puentes o Bridges:</strong> Dividen la red en <strong>dos segmentos</strong>. Los paquetes que se envian a un segmento no colisionan con los del otro.</li>
+          <li><strong>Conmutadores o Switches:</strong> Puertos <strong>multierto</strong> que consiguen dividir la red en <strong>tantos segmentos como puertos</strong> tenga. Nunca se producen colisiones.</li>
+          <li><strong>Enrutadores o Routers:</strong> Dirigen y distribuyen el <strong>trafico de la red</strong>. Imprescindible cuando se unen varias LANs.</li>
+          <li><strong>Cortafuegos o Firewall:</strong> Gestionan la <strong>seguridad de la red</strong>. Deciden si <strong>aceptan o rechazan paquetes de informacion</strong>. Filtra tanto paquetes del exterior como del interior.</li>
+          <li><strong>Modem:</strong> Envia senales de datos a traves de <strong>cables de telefono</strong>. Realiza <strong>modulacion-demodulacion</strong> del serial.</li>
+          <li><strong>Cablemodem:</strong> Parecido al modem pero envia datos a traves de <strong>cable coaxial</strong>. Pensado para transportar senales de television.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div id="t8" class="topic-content">
+      <div class="card">
+        <h2>8. Topologia de la Red</h2>
+        <div class="highlight">
+          <strong>Topologia:</strong> Define la <strong>estructura</strong> de la red.
+        </div>
+        <h3>Tipos de topologia</h3>
+        <ul>
+          <li><strong>Topologia fisica:</strong> Describe como estan dispuestos en la red los <strong>medios de transmision</strong>.</li>
+          <li><strong>Topologia logica:</strong> Define como <strong>acceden los ordenadores a la red</strong>.</li>
+        </ul>
+        <p>Red con varias topologias = <strong>red mixta</strong>.</p>
+        <h3>Topologias fisicas</h3>
+        <ul>
+          <li><strong>Bus:</strong> Un unico segmento de cable donde todos los equipos se conectan de forma directa.</li>
+          <li><strong>Anillo:</strong> Cada equipo con el siguiente y el ultimo con el primero, creando un <strong>anillo fisico de cable</strong>.</li>
+          <li><strong>Estrella:</strong> Conecta los medios de transmision de cada equipo a un <strong>unico punto central de concentracion</strong> (hub o switch).</li>
+          <li><strong>Estrella extendida:</strong> Union de varias redes con topologia de estrella, unidas a su vez a un punto central.</li>
+          <li><strong>Jerarquica:</strong> Parecida a la estrella extendida. Formada por varias redes en forma de estrella conectadas de <strong>forma jerarquica</strong>.</li>
+          <li><strong>Malla:</strong> Aparece cuando cada nodo de la red esta conectado a los <strong>demas nodos</strong>. Los paquets disponen de multitud de caminos.</li>
+        </ul>
+        <h3>Topologias logicas</h3>
+        <ul>
+          <li><strong>Topologia de bus logica:</strong> Implementacion mas sencilla. Cada equipo envia datos hacia todos los demas equipos sin ningun tipo de filtro. Puede provocar <strong>colisiones de paquetes</strong>.</li>
+          <li><strong>Token ring:</strong> La mas popular de topologia de anillo. Un <strong>testigo (token)</strong> circula por el anillo. Solo el equipo que tiene el testigo puede transmitir.</li>
+        </ul>
+        <div class="highlight">
+          <strong>Combinaciones posibles:</strong> Topologia anillo/estrella (anillo a traves de estrella), Topologia bus/estrella (bus a traves de estrella).
+        </div>
+      </div>
+    </div>
+
+    <div id="t9" class="topic-content">
+      <div class="card">
+        <h2>9. Tipos de Redes</h2>
+        <h3>Segun su extension</h3>
+        <ul>
+          <li><strong>PAN (Personal Area Network):</strong> Equipos terminales situados en un <strong>radio de pocos metros</strong>. Uso personal (PSP, movil, bluetooth).</li>
+          <li><strong>HAN (Home Area Network):</strong> Red del <strong>hogar</strong>. Red inalambrica que conecta equipos para uso domestico y conexion permanente a Internet.</li>
+          <li><strong>LAN (Local Area Network):</strong> Extension limitada fisicamente a un <strong>edificio</strong>. Varios nodos conectados a un concentrador o router.</li>
+          <li><strong>CAN (Campus Area Network):</strong> Conecta varias LAN dentro de un area geografica (edificio o varios edificios cercanos). Los routers de cada una de las LAN forman el CAN.</li>
+          <li><strong>MAN (Metropolitan Area Network):</strong> Comprende desde varios edificios a una <strong>ciudad entera</strong>. Interconecta varias LANs entre si usando conexiones de alta capacidad.</li>
+          <li><strong>WAN (Wide Area Network):</strong> Interconecta <strong>distancias muy lejanas</strong> e incluye todo un pais. Normalmente creadas por ISP.</li>
+        </ul>
+        <h3>Segun el tipo de acceso a la red</h3>
+        <ul>
+          <li><strong>Red publica:</strong> Los nodos acceden utilizando la direccion IP que les proporciona su <strong>ISP</strong>. Forman parte de Internet.</li>
+          <li><strong>Red privada:</strong> Usan <strong>direcciones IP especiales</strong> definidas como privadas. No pueden acceder realmente a Internet sin un <strong>router</strong> que haga traductor (NAT).</li>
+        </ul>
+        <h3>Segun el medio de transmision</h3>
+        <ul>
+          <li><strong>Red cableada:</strong> Equipos conectados mediante un cable. Se coloca una <strong>roseta</strong> en la pared.</li>
+          <li><strong>Red inalambrica:</strong> Transmite y recibe informacion por <strong>ondas electromagneticas</strong> gracias a las antenas.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div id="t10" class="topic-content">
+      <div class="card">
+        <h2>10. Segun su Funcion</h2>
+        <ul>
+          <li><strong>DAS (Direct Attached Storage):</strong> Servidor de almacenamiento. El servidor aloja los datos de todos los clientes. Sencillo, para <strong>pequenas y medianas empresas</strong>.</li>
+          <li><strong>NAS (Network Attached Storage):</strong> Ofrece almacenamiento a traves del protocolo estandar <strong>TCP/IP</strong>. Mayor crecimiento y escalabilidad que DAS.</li>
+          <li><strong>SAN (Storage Area Network):</strong> Red con una <strong>gran capacidad de almacenamiento</strong> y acceso continuo. Infraestructura de gran rendimiento, utiliza medios de <strong>fibra optica</strong>.</li>
+          <li><strong>VLAN (Virtual LAN) / Red de area local virtual:</strong> Crea una red logica dentro de una misma red fisica. Distribuye varias VLAN, cada una con sus <strong>propios canales</strong>. Util para separar datos de distintos departamentos.</li>
+          <li><strong>VPN (Virtual Private Network):</strong> Crea <strong>redes privadas</strong> haciendo uso de Internet. Permite a dos empresas compartir datos de forma segura. <strong>Hamachi</strong> es un programa popular para crear VPNs.</li>
+          <li><strong>DMZ (Zona desmilitarizada):</strong> Tipo de red que <strong>no tiene ningun sistema para prevenir el ataque de intrusos</strong>. Se conecta a Internet y se protege con algun firewall. Algunos routers domesticos permiten colocar un ordenador central en la DMZ.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- EXAMENES -->
+  <div id="examenes" class="section">
+    <div id="exam-selector">
+      <h2 style="margin-bottom: 1rem; color: var(--accent2);">Selecciona un Examen</h2>
+      <button class="random-btn" onclick="generarTestAleatorio()">🎲 Generar Test Aleatorio</button>
+      <div class="exam-selector" id="exam-grid"></div>
+      <div class="card" style="margin-top: 1rem;">
+        <h3>Estadisticas</h3>
+        <div class="stats-grid">
+          <div class="stat-box"><div class="num" id="stat-taken">0</div><div class="label">Examenes realizados</div></div>
+          <div class="stat-box"><div class="num" id="stat-avg">—</div><div class="label">Media de aciertos</div></div>
+          <div class="stat-box"><div class="num" id="stat-best">—</div><div class="label">Mejor nota</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="exam-area" style="display:none;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:1rem;">
+        <h2 id="exam-title" style="color:var(--accent2);"></h2>
+        <div>
+          <span id="exam-progress" style="color:var(--muted); margin-right:1rem;"></span>
+          <button class="btn btn-secondary" onclick="volverSelector()">Volver</button>
+        </div>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+      <div id="questions-container"></div>
+      <div style="text-align:center; margin-top:1.5rem;">
+        <button class="btn" onclick="corregirExamen()">Corregir Examen</button>
+      </div>
+    </div>
+
+    <div id="results-area" style="display:none;">
+      <div class="card results">
+        <h2>Resultados del Examen</h2>
+        <div id="score-display"></div>
+        <p id="score-message" style="margin:1rem 0; font-size:1.1rem;"></p>
+        <div style="margin-top:1.5rem;">
+          <button class="btn" onclick="volverSelector()">Elegir otro examen</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// BANCO DE 200 PREGUNTAS UNICAS
+const bancoPreguntas = [
+  { q: "¿Que es una LAN (Local Area Network)?", options: ["Un sistema informatico que permite la conexion entre ordenadores fisicamente proximos", "Una red que conecta ordenadores en diferentes paises", "Un tipo de conexion a Internet de alta velocidad", "Un sistema de almacenamiento en la nube"], correct: 0, exp: "Una LAN es un sistema informatico que permite la conexion entre ordenadores que se encuentran fisicamente proximos entre si, normalmente en una vivienda o habitacion." },
+  { q: "¿Cuando una red deja de considerarse LAN?", options: ["Cuando necesita la intervencion de una empresa de telecomunicaciones para conectar edificios lejanos", "Cuando tiene mas de 10 equipos conectados", "Cuando utiliza tecnologia inalambrica", "Cuando comparte una impresora"], correct: 0, exp: "Si precisamos conexiones de red con edificios colocados al otro extremo de la calle, necesitamos la intervencion de una empresa de telecomunicaciones y, por tanto, salimos del ambito de red local." },
+  { q: "¿Que son los equipos terminales en una red?", options: ["Los dispositivos que inician o acaban una conversacion en la red (emisores o receptores)", "Los cables que conectan los ordenadores", "Los programas de gestion de red", "Los servidores de almacenamiento"], correct: 0, exp: "Los equipos terminales de datos (ETD) son los dispositivos que inician o acaban una conversacion en la red. Son los emisores o receptores de la informacion." },
+  { q: "¿Que arquitectura de red utiliza un ordenador central que ofrece recursos al resto?", options: ["Cliente-Servidor", "Punto a Punto (P2P)", "Anillo", "Malla"], correct: 0, exp: "En la arquitectura Cliente-Servidor, un ordenador central (servidor) ofrece recursos en forma de servicios a los demas ordenadores de la red (clientes)." },
+  { q: "¿Como se llama la arquitectura donde todos los equipos son a la vez clientes y servidores?", options: ["Punto a Punto (P2P)", "Cliente-Servidor", "Jerarquica", "Estrella"], correct: 0, exp: "En las redes P2P todos los equipos pueden ser a la vez clientes y servidores respecto a los demas dispositivos de la red, lo que les confiere un aspecto jerarquico de igualdad." },
+  { q: "¿Que es un nodo en una red local?", options: ["Un equipo terminal conectado a la red con su propia CPU", "Un tipo de cable de red", "Un programa de seguridad", "Un conector de pared"], correct: 0, exp: "Los equipos terminales conectados a una red reciben el nombre de nodos. Cada uno de estos nodos posee su propia unidad de procesamiento (CPU)." },
+  { q: "¿Cual es el principal beneficio de compartir recursos en una red?", options: ["Ahorro economico y funcional al usar un unico recurso para multiples dispositivos", "Mayor velocidad de Internet", "Mejor seguridad informatica", "Mayor capacidad de almacenamiento"], correct: 0, exp: "Recursos compartidos: se consigue que un unico recurso pueda ser utilizado por multitud de dispositivos, con el ahorro que esto supone." },
+  { q: "¿Que ventaja ofrece la administracion centralizada de una red?", options: ["Muchas operaciones se realizan de forma centralizada desde el servidor o remotamente", "Mayor velocidad de transmision", "Menor coste del hardware", "Conexion a Internet mas rapida"], correct: 0, exp: "La administracion centralizada permite que muchas de las operaciones se realicen de forma centralizada desde el servidor de la red o que se puedan resolver remotamente problemas de configuracion." },
+  { q: "¿Cual es el rango tipico de velocidad de transmision en redes locales?", options: ["Entre 1 Mbps y 1 Gbps", "Entre 1 Kbps y 1 Mbps", "Entre 1 Gbps y 100 Gbps", "Entre 100 Mbps y 1 Tbps"], correct: 0, exp: "La velocidad de transmision de los medios de la red esta entre 1 Mbps y 1 Gbps." },
+  { q: "¿Cuantos bits equivalen a un byte?", options: ["8 bits", "4 bits", "16 bits", "32 bits"], correct: 0, exp: "La velocidad de transmision en redes se mide en bits por segundo. Recordad que 8 bits equivalen a un byte." },
+  { q: "¿Que tecnologia permite conectar una red sin cables?", options: ["WLAN (Wireless LAN) mediante ondas electromagneticas", "Fibra optica", "Cable coaxial", "Cable UTP"], correct: 0, exp: "La aparicion de nuevas tecnologias ha hecho posible que seamos capaces de conectarnos a una red sin el uso de cables (wireless LAN), por medio de ondas electromagneticas." },
+  { q: "¿Quien es el administrador de una red?", options: ["El especialista en redes encargado de la configuracion inicial y el mantenimiento", "El usuario que mas usa la red", "El proveedor de Internet", "El fabricante del hardware de red"], correct: 0, exp: "El administrador es el especialista en redes de ordenadores y el encargado de realizar el trabajo de configuracion inicial y el mantenimiento de la red." },
+  { q: "¿Que dispositivos ademas de ordenadores pueden conectarse a una red local?", options: ["Impresoras, moviles, PSP, PDA, escaneres", "Solo ordenadores", "Solo impresoras", "Solo dispositivos moviles"], correct: 0, exp: "El termino ordenadores se ha sustituido por equipos terminales, dando cabida a un mayor numero de dispositivos: impresoras, moviles, PSP, PDA, etc." },
+  { q: "¿Que tipo de arquitectura de red se caracteriza por la igualdad entre todos los equipos?", options: ["P2P (Punto a Punto)", "Cliente-Servidor", "Jerarquica", "Estrella"], correct: 0, exp: "En las redes P2P todos los equipos tienen la misma importancia, sin jerarquia determinada." },
+  { q: "¿Que permite compartir ficheros y datos en una red local?", options: ["Trabajo en grupo sobre el mismo fichero y comunicacion instantanea", "Mayor velocidad de procesamiento", "Almacenamiento ilimitado", "Acceso a Internet gratuito"], correct: 0, exp: "Ficheros y datos compartidos: posibilita el trabajo en grupo, ya que muchos usuarios pueden trabajar sobre el mismo fichero, disponer de la informacion en todo momento o comunicarse instantaneamente." },
+  { q: "¿Cual es la longitud maxima tipica de un cable en redes cableadas?", options: ["100 metros", "10 metros", "1 kilometro", "50 metros"], correct: 0, exp: "En las redes cableadas, la longitud de los cables puede medir como maximo 100 m. Esta medida puede aumentar utilizando repetidores." },
+  { q: "¿Que tipo de tecnologia de comunicacion usa la red actualmente como modelo teorico?", options: ["Difusion o por paso de testigo", "Solo difusion", "Solo paso de testigo", "Ni difusion ni paso de testigo"], correct: 0, exp: "La tecnologia de comunicacion que usa la red es por difusion o por paso de testigo (actualmente solo como modelo teorico)." },
+  { q: "¿Que variedad de equipos pueden conectarse a una red local?", options: ["Ordenadores, moviles, tabletas digitales", "Solo ordenadores", "Solo moviles", "Solo tabletas"], correct: 0, exp: "La gran variedad de equipos que pueden conectarse a una red: ordenadores, moviles, tabletas digitales." },
+  { q: "¿Que es una red mixta?", options: ["Una red con varias topologias", "Una red con varios tipos de cable", "Una red con varios sistemas operativos", "Una red con varios proveedores de Internet"], correct: 0, exp: "En los casos de redes con varias topologias, diremos que se trata de una red mixta." },
+  { q: "¿Que es un host en una red?", options: ["Una computadora, ya sea cliente o servidor", "Un tipo de cable", "Un programa de red", "Un conector de pared"], correct: 0, exp: "El termino host se usa de forma generica y engloba: Computadoras, ya sean clientes o servidores; Perifericos de uso en la red; Otros dispositivos de usuario." },
+  { q: "¿Que es un ETD?", options: ["Equipo Terminal de Datos: dispositivo que inicia o acaba una conversacion en la red", "Un tipo de cable", "Un programa de red", "Un conector de pared"], correct: 0, exp: "Los equipos terminales de datos (ETD) son los dispositivos que inician o acaban una conversacion en la red." },
+  { q: "¿Que es un NIC?", options: ["Network Interface Card: tarjeta de red", "Un tipo de cable", "Un programa de red", "Un conector de pared"], correct: 0, exp: "La tarjeta de red tambien es conocida como NIC (Network Interface Card)." },
+  { q: "¿Que es un ISP?", options: ["Internet Service Provider: proveedor de servicios de Internet", "Un tipo de red", "Un programa de red", "Un conector de pared"], correct: 0, exp: "Los ISP son empresas privadas que proporcionan conexion a Internet a sus clientes." },
+  { q: "¿Que es una roseta en una red cableada?", options: ["Un conector de pared donde se conectan los cables de la red", "Un tipo de cable", "Un programa de red", "Un dispositivo de almacenamiento"], correct: 0, exp: "En las redes cableadas suele colocarse un armario de comunicacion donde se contienen todos los cables de todos los equipos conectados a la red." },
+  { q: "¿Que es un armario de comunicacion?", options: ["Un mueble donde se contienen todos los cables de los equipos conectados a la red", "Un tipo de cable", "Un programa de red", "Un dispositivo de almacenamiento"], correct: 0, exp: "En las redes cableadas suele colocarse un armario de comunicacion donde se contienen todos los cables de todos los equipos conectados a la red." },
+  { q: "¿Que es un testigo en una red token ring?", options: ["Un permiso que circula por el anillo y permite transmitir al equipo que lo posee", "Un tipo de cable", "Un programa de red", "Un conector de pared"], correct: 0, exp: "El testigo es un dispositivo que tiene la red en un momento dado y que puede transmitir datos a traves de la red." },
+  { q: "¿Que es una colision de paquetes?", options: ["Cuando dos equipos transmiten a la vez en un mismo segmento de red", "Cuando un paquete se pierde", "Cuando un cable se rompe", "Cuando un servidor se cae"], correct: 0, exp: "En la topologia de bus logica, si dos equipos transmiten a la vez, se producen colisiones de paquetes de datos." },
+  { q: "¿Que topologia logica es mas sencilla de implementar?", options: ["Topologia de bus logica", "Token ring", "Topologia de estrella logica", "Topologia de malla logica"], correct: 0, exp: "La topologia de bus logica es la que tiene una implementacion mas sencilla. Cada equipo de la red envia sus datos hacia todos los demas equipos." },
+  { q: "¿Que topologia logica es mas compleja que la de bus?", options: ["Token ring", "Topologia de estrella logica", "Topologia de malla logica", "Topologia de anillo logica"], correct: 0, exp: "La topologia token ring requiere mayor complejidad que la topologia de bus." },
+  { q: "¿Que es un segmento de red?", options: ["Una parte de la red que se divide para evitar colisiones", "Un tipo de cable", "Un programa de red", "Un conector de pared"], correct: 0, exp: "Los puentes o bridges son unos dispositivos capaces de dividir la red en dos segmentos, de tal manera que los paquetes que se envian a un segmento no colisionan con los del otro." },
+  { q: "¿Que ventaja tiene la administracion centralizada?", options: ["Permite resolver problemas de configuracion remotamente", "Aumenta la velocidad de transmision", "Reduce el coste de los cables", "Mejora la senal inalambrica"], correct: 0, exp: "La administracion centralizada permite que muchas de las operaciones se realicen de forma centralizada desde el servidor de la red o que se puedan resolver remotamente problemas de configuracion." },
+  { q: "¿Que es una red cliente-servidor?", options: ["Una red donde un servidor ofrece recursos a los clientes", "Una red donde todos los equipos son iguales", "Una red sin servidor", "Una red solo de impresoras"], correct: 0, exp: "En la arquitectura Cliente-Servidor, un ordenador central (servidor) ofrece recursos en forma de servicios a los demas ordenadores de la red (clientes)." },
+  { q: "¿Que es una red P2P?", options: ["Una red donde todos los equipos son clientes y servidores a la vez", "Una red con un servidor central", "Una red sin servidor", "Una red solo de impresoras"], correct: 0, exp: "En las redes P2P todos los equipos pueden ser a la vez clientes y servidores respecto a los demas dispositivos de la red." },
+  { q: "¿Que es un recurso compartido en una red?", options: ["Un recurso (como una impresora) utilizado por multiples dispositivos", "Un recurso que solo puede usar un equipo", "Un recurso de Internet", "Un recurso de almacenamiento en la nube"], correct: 0, exp: "Recursos compartidos: se consigue que un unico recurso pueda ser utilizado por multitud de dispositivos, con el ahorro que esto supone." },
+  { q: "¿Que es un fichero compartido?", options: ["Un fichero sobre el que trabajan muchos usuarios simultaneamente", "Un fichero que no se puede modificar", "Un fichero de solo lectura", "Un fichero cifrado"], correct: 0, exp: "Ficheros y datos compartidos: posibilita el trabajo en grupo, ya que muchos usuarios pueden trabajar sobre el mismo fichero." },
+  { q: "¿Que es la comunicacion instantanea en una red?", options: ["La capacidad de comunicarse entre equipos de forma inmediata", "Una llamada telefonica", "Un correo electronico", "A videoconferencia"], correct: 0, exp: "Ficheros y datos compartidos: posibilita la comunicacion instantanea con distintos elementos de la red." },
+  { q: "¿Que es un sistema informatico en el contexto de una LAN?", options: ["Un conjunto de hardware y software que permite la conexion entre ordenadores", "Un solo ordenador", "Un programa de ofimatica", "Un sistema operativo"], correct: 0, exp: "Una LAN es un sistema informatico que permite la conexion entre ordenadores que se encuentran fisicamente proximos entre si." },
+  { q: "¿Que es la conexion de red?", options: ["La capacidad de los equipos para comunicarse entre si", "Un tipo de cable", "Un programa de red", "Un conector de pared"], correct: 0, exp: "Una LAN permite la conexion entre ordenadores que se encuentran fisicamente proximos entre si." },
+  { q: "¿Que es la proximidad fisica en una LAN?", options: ["Que los equipos esten en la misma vivienda o habitacion", "Que los equipos esten en el mismo pais", "Que los equipos esten en el mismo continente", "Que los equipos esten en el mismo edificio"], correct: 0, exp: "Una LAN conecta equipos que se encuentran fisicamente proximos entre si, normalmente en una vivienda o habitacion." },
+  { q: "¿Que es una tarjeta de red (NIC)?", options: ["Un elemento imprescindible que realiza las funciones de conexion entre el dispositivo y la red", "Un tipo de cable de red", "Un programa de gestion de red", "Un dispositivo de almacenamiento"], correct: 0, exp: "La tarjeta de red es un elemento imprescindible dentro de las redes de area local. Se encarga de realizar las funciones de conexion entre el dispositivo y la red." },
+  { q: "¿Que conector se utiliza para cables UTP y STP?", options: ["RJ-45", "BNC", "FDDI", "LC"], correct: 0, exp: "Los cables UTP utilizan un conector llamado RJ-45 y los STP uno llamado RJ-49. Son muy parecidos al conector telefonico." },
+  { q: "¿Que conector se utiliza para cables coaxiales?", options: ["BNC (Bayonet Neill-Concelman)", "RJ-45", "FDDI", "USB"], correct: 0, exp: "Los cables de tipo coaxial utilizan un conector que recibe el nombre de BNC (Bayonet Neill-Concelman)." },
+  { q: "¿Que tipo de medio de transmision utiliza luz para transportar informacion?", options: ["Fibra optica", "Cable UTP", "Cable coaxial", "Cable telefonico"], correct: 0, exp: "La fibra optica son delgadas fibras de vidrio que transportan luz como modo de informacion." },
+  { q: "¿Cual es la diferencia principal entre cable UTP y STP?", options: ["El STP tiene mayor blindaje contra interferencias", "El UTP es mas rapido", "El STP es de fibra optica", "El UTP es inalambrico"], correct: 0, exp: "El cable STP es parecido al UTP pero con mayor blindaje contra interferencias." },
+  { q: "¿Que es un repetidor en una red cableada?", options: ["Un dispositivo intermedio que aumenta la longitud maxima del cable", "Un tipo de conector", "Un programa de red", "Un tipo de topologia"], correct: 0, exp: "La longitud maxima de los cables puede aumentar utilizando repetidores, que son dispositivos intermedios." },
+  { q: "¿Que tipo de red utiliza ondas electromagneticas para transmitir informacion?", options: ["Red inalambrica", "Red cableada", "Red de fibra optica", "Red coaxial"], correct: 0, exp: "La red inalambrica transmite y recibe informacion por medio de ondas electromagneticas." },
+  { q: "¿A que velocidad viajan las ondas electromagneticas en el vacio?", options: ["A la velocidad de la luz", "A la velocidad del sonido", "A 100 Mbps", "A 1 Gbps"], correct: 0, exp: "En el vacio, las ondas viajaran a la velocidad de la luz." },
+  { q: "¿Cual es la maxima potencia permitida para una antena en Espana en la banda de 2,4 GHz?", options: ["100 mW", "1 W", "10 mW", "500 mW"], correct: 0, exp: "En Espana la maxima potencia que se le permite a una antena es 100 mW en la banda de frecuencia de 2,4 GHz." },
+  { q: "¿Que tipo de antena emite en todas las direcciones del espacio?", options: ["Omnidireccional", "Direccional", "Unidireccional", "Bidireccional"], correct: 0, exp: "Las antenas omnidireccionales son capaces de emitir en todas las direcciones del espacio." },
+  { q: "¿Que es un modem?", options: ["Un dispositivo que envia senales de datos a traves de cables de telefono mediante modulacion-demodulacion", "Un tipo de antena", "Un conector de red", "Un programa de comunicaciones"], correct: 0, exp: "El modem es un dispositivo que se utiliza para enviar senales de datos informaticos a traves de cables de telefono." },
+  { q: "¿Que diferencia hay entre un modem y un cablemodem?", options: ["El cablemodem envia datos a traves de cable coaxial, el modem por cable telefonico", "El cablemodem es inalambrico", "El modem es mas rapido", "No hay diferencia"], correct: 0, exp: "El cablemodem es parecido al modem pero envia datos a traves de cable coaxial." },
+  { q: "¿Que es un concentrador (hub)?", options: ["Un equipo intermedio que regenera la senal electrica y conecta varios equipos", "Un tipo de cable", "Un programa de red", "Un conector de pared"], correct: 0, exp: "Los concentradores o hubs se utilizan para regenerar la senal electrica de transmision cada cierto tiempo." },
+  { q: "¿Cual es el principal problema de los hubs?", options: ["Toda la red se ve como un unico segmento, provocando colisiones de paquetes", "Son demasiado lentos", "No conectan suficientes equipos", "Son demasiado caros"], correct: 0, exp: "El principal problema de los hubs es que toda la red se ve como un unico segmento, por lo que si dos equipos transmiten a la vez, se producen colisiones de paquetes." },
+  { q: "¿Que dispositivo divide la red en dos segmentos para evitar colisiones?", options: ["Puente (Bridge)", "Hub", "Router", "Switch"], correct: 0, exp: "Los puentes o bridges son unos dispositivos capaces de dividir la red en dos segmentos." },
+  { q: "¿Que es un switch?", options: ["Un puerto multierto que divide la red en tantos segmentos como puertos tenga, evitando colisiones", "Un tipo de cable", "Un programa de red", "Un conector de pared"], correct: 0, exp: "Los conmutadores o switches son puertos multierto que consiguen dividir la red en tantos segmentos como puertos tenga el switch." },
+  { q: "¿Que es un router?", options: ["Un equipo que dirige y distribuye el trafico de la red, imprescindible para unir varias LANs", "Un tipo de cable de red", "Un programa de seguridad", "Un dispositivo de almacenamiento"], correct: 0, exp: "Los enrutadores o routers se utilizan para dirigir y distribuir el trafico de la red. Son imprescindibles cuando se tienen que unir varias LANs." },
+  { q: "¿Que es un firewall (cortafuegos)?", options: ["Un dispositivo que gestiona la seguridad de la red, decidiendo si acepta o rechaza paquetes de informacion", "Un tipo de virus informatico", "Un programa de edicion de imagenes", "Un tipo de conexion a Internet"], correct: 0, exp: "El cortafuegos o firewall es un dispositivo encargado de gestionar la seguridad de la red. Decide si acepta o rechaza los paquetes de informacion." },
+  { q: "¿Que es un SAN (Storage Area Network)?", options: ["Una red con gran capacidad de almacenamiento y acceso continuo, que utiliza fibra optica", "Una red publica de Internet", "Una red inalambrica domestica", "Una red de area personal"], correct: 0, exp: "La SAN es una red que contiene una gran capacidad de almacenamiento. Utiliza medios de fibra optica." },
+  { q: "¿Que es una VLAN (Virtual LAN)?", options: ["Una red logica creada dentro de una misma red fisica, con canales propios para cada VLAN", "Una red publica de Internet", "Una red inalambrica", "Una red de almacenamiento"], correct: 0, exp: "Las VLAN constituyen una forma de crear una red logica dentro de una misma red fisica. Cada una transmite informacion por un canal distinto." },
+  { q: "¿Que protocolo asigna direcciones IP automaticamente a los equipos de la red?", options: ["DHCP (Dynamic Host Configuration Protocol)", "DNS (Domain Name System)", "TCP/IP", "FTP"], correct: 0, exp: "El DHCP es un protocolo que asigna una direccion IP determinada de manera automatica a cada equipo de la red." },
+  { q: "¿Que protocolo asocia direcciones IP con nombres determinados?", options: ["DNS (Domain Name System)", "DHCP", "HTTP", "FTP"], correct: 0, exp: "El DNS asocia direcciones IP con nombres determinados, ya que es mas facil recordar un nombre que un numero IP." },
+  { q: "¿Que es un servicio de impresion en red?", options: ["Un servidor que controla las impresoras, otorga prioridades de acceso y controla las colas de impresion", "Una impresora compartida sin servidor", "Un programa de edicion de documentos", "Un tipo de red inalambrica"], correct: 0, exp: "Los servicios de impresion son donde un servidor controla las impresoras de la red, otorgando prioridades de acceso y controlando las colas de impresion." },
+  { q: "¿Que es una VPN (Virtual Private Network)?", options: ["Una forma de crear redes privadas haciendo uso de Internet, permitiendo compartir datos de forma segura", "Una red publica sin seguridad", "Una red de area local", "Una red de almacenamiento"], correct: 0, exp: "La VPN es una forma de crear redes privadas haciendo uso de Internet. Permite a dos empresas compartir datos de forma segura." },
+  { q: "¿Que programa es popular para crear redes privadas virtuales (VPN)?", options: ["Hamachi", "Word", "Photoshop", "Excel"], correct: 0, exp: "El popular programa Hamachi crea redes privadas virtuales entre los distintos usuarios que lo utilizan." },
+  { q: "¿Que es un NAS (Network Attached Storage)?", options: ["Una red que ofrece almacenamiento a traves del protocolo estandar TCP/IP, con mayor escalabilidad que DAS", "Una red publica de Internet", "Una red inalambrica", "Una red de area personal"], correct: 0, exp: "La NAS ofrece un servicio de almacenamiento a traves del protocolo estandar de comunicaciones TCP/IP." },
+  { q: "¿Que es un DAS (Direct Attached Storage)?", options: ["Un servidor de almacenamiento que aloja los datos de todos los clientes, sencillo y para pequenas/medianas empresas", "Una red publica de Internet", "Una red inalambrica", "Una red de area personal"], correct: 0, exp: "El DAS esta formado por un servidor de almacenamiento. Es un tipo de red valido para pequena y mediana empresa." },
+  { q: "¿Que es un servicio en una red?", options: ["Una funcionalidad que proporciona un host al resto de dispositivos de la red", "Un tipo de cable", "Un programa de red", "Un conector de pared"], correct: 0, exp: "Un servicio es una funcionalidad que proporciona un host al resto de dispositivos de la red." },
+  { q: "¿Que es un protocolo en una red?", options: ["Un conjunto de normas que deben cumplirse para implementar un servicio", "Un tipo de cable", "Un programa de red", "Un conector de pared"], correct: 0, exp: "Un protocolo es un conjunto de normas que deben cumplirse para implementar dicho servicio." },
+  { q: "¿Que es una arquitectura cliente-servidor?", options: ["Una arquitectura jerarquica donde el servidor es el ordenador mas importante", "Una arquitectura donde todos los equipos son iguales", "Una arquitectura sin servidor", "Una arquitectura solo de impresoras"], correct: 0, exp: "La arquitectura cliente-servidor es jerarquica, porque el servidor es un tipo de ordenador mas importante que los clientes." },
+  { q: "¿Que es una arquitectura P2P?", options: ["Una arquitectura donde todos los equipos tienen la misma importancia", "Una arquitectura con un servidor central", "Una arquitectura sin servidor", "Una arquitectura solo de impresoras"], correct: 0, exp: "En la arquitectura P2P, todos los equipos tienen la misma importancia. No hay jerarquia determinada." },
+  { q: "¿Que es una cola de impresion?", options: ["Una lista de trabajos de impresion esperando a ser impresos", "Un tipo de cable", "Un programa de red", "Un conector de pared"], correct: 0, exp: "Los servicios de impresion controlan las colas de impresion, otorgando prioridades de acceso." },
+  { q: "¿Que es una direccion IP?", options: ["Un numero que identifica a un equipo en la red", "Un tipo de cable", "Un programa de red", "Un conector de pared"], correct: 0, exp: "El DHCP asigna una direccion IP a cada equipo de la red. El DNS asocia direcciones IP con nombres determinados." },
+  { q: "¿Que es un nombre de dominio?", options: ["Un nombre asociado a una direccion IP para facilitar su recordatorio", "Un tipo de cable", "Un programa de red", "Un conector de pared"], correct: 0, exp: "El DNS asocia direcciones IP con nombres determinados, ya que es mas facil recordar un nombre que un numero IP." },
+  { q: "¿Que es una red publica?", options: ["Una red donde los nodos acceden utilizando la direccion IP que les proporciona su ISP", "Una red privada", "Una red inalambrica", "Una red cableada"], correct: 0, exp: "En la red publica, los nodos acceden a la red utilizando la direccion IP que les proporciona su proveedor de servicio (ISP)." },
+  { q: "¿Que es una red privada?", options: ["Una red que usa direcciones IP especiales definidas como privadas", "Una red publica", "Una red inalambrica", "Una red cableada"], correct: 0, exp: "Las redes privadas usan direcciones IP especiales definidas como privadas. Necesitan un router para acceder a Internet." },
+  { q: "¿Que es un router en el contexto de las redes privadas?", options: ["Un dispositivo que hace de traductor entre direcciones IP privadas y publicas", "Un tipo de cable", "Un programa de red", "Un conector de pared"], correct: 0, exp: "Las redes privadas necesitan un router que les haga de traductor entre sus direcciones IP privadas y las direcciones IP publicas que circulan por Internet." },
+  { q: "¿Que es una red inalambrica?", options: ["Una red que transmite informacion por ondas electromagneticas a traves del aire", "Una red cableada", "Una red de fibra optica", "Una red coaxial"], correct: 0, exp: "La red inalambrica transmite y recibe informacion por medio de ondas electromagneticas. El aire es el medio de transmision." },
+  { q: "¿Que es la topologia fisica de una red?", options: ["Describe como estan dispuestos en la red los medios de transmision", "Define como acceden los ordenadores a la red", "Es el tipo de cable que se utiliza", "Es el software de gestion de red"], correct: 0, exp: "La topologia fisica describe como estan dispuestos en la red los medios de transmision." },
+  { q: "¿Que es la topologia logica de una red?", options: ["Define como acceden los ordenadores a la red", "Describe la disposicion fisica de los cables", "Es el tipo de hardware utilizado", "Es la velocidad de transmision"], correct: 0, exp: "La topologia logica define como acceden los ordenadores a la red." },
+  { q: "¿En que topologia todos los equipos se conectan a un unico segmento de cable?", options: ["Bus", "Estrella", "Anillo", "Malla"], correct: 0, exp: "La topologia de bus utiliza un unico segmento de cable donde todos los equipos se conectan de forma directa." },
+  { q: "¿En que topologia cada equipo se conecta con el siguiente y el ultimo con el primero?", options: ["Anillo", "Bus", "Estrella", "Malla"], correct: 0, exp: "La topologia de anillo conecta cada equipo con el siguiente y el ultimo con el primero, creando un anillo fisico de cable." },
+  { q: "¿Que dispositivo central se utiliza en la topologia de estrella?", options: ["Hub o switch", "Router", "Modem", "Repetidor"], correct: 0, exp: "La topologia de estrella conecta los medios de transmision de cada equipo a un unico punto central de concentracion (hub o switch)." },
+  { q: "¿En que topologia cada nodo esta conectado a los demas nodos?", options: ["Malla", "Bus", "Estrella", "Anillo"], correct: 0, exp: "La topologia de malla aparece cuando cada nodo de la red esta conectado a los demas nodos de la misma." },
+  { q: "¿Que es un testigo (token) en una red?", options: ["Un dispositivo que circula por el anillo y permite transmitir solo al equipo que lo tiene", "Un tipo de cable", "Un programa de seguridad", "Un conector de red"], correct: 0, exp: "El testigo es un dispositivo que tiene la red en un momento dado y que puede transmitir datos a traves de la red." },
+  { q: "¿Que topologia logica utiliza un testigo que circula por el anillo?", options: ["Token ring", "Bus logica", "Estrella logica", "Malla logica"], correct: 0, exp: "En el tipo de transmision mediante el uso de testigos, el dispositivo que tiene el testigo en un momento dado es el que puede transmitir datos." },
+  { q: "¿Que topologia fisica implementa un anillo a traves de una estrella?", options: ["Topologia anillo/estrella", "Topologia bus/estrella", "Topologia malla/estrella", "Topologia jerarquica/estrella"], correct: 0, exp: "Topologia anillo/estrella: implementa un anillo a traves de una estrella." },
+  { q: "¿Que topologia fisica implementa un bus a traves de una estrella?", options: ["Topologia bus/estrella", "Topologia anillo/estrella", "Topologia malla/estrella", "Topologia jerarquica/estrella"], correct: 0, exp: "Topologia bus/estrella: implementa una topologia de bus a traves de una estrella." },
+  { q: "¿Que es una topologia de estrella extendida?", options: ["La union de varias redes con topologia de estrella, unidas a su vez a un punto central", "Una topologia de bus", "Una topologia de anillo", "Una topologia de malla"], correct: 0, exp: "La topologia de estrella extendida consiste en la union de varias redes con topologia de estrella, unidas a su vez, a un punto central." },
+  { q: "¿Que es una topologia jerarquica?", options: ["Parecida a la estrella extendida, formada por varias redes en forma de estrella conectadas de forma jerarquica", "Una topologia de bus", "Una topologia de anillo", "Una topologia de malla"], correct: 0, exp: "La topologia jerarquica es parecida a la estrella extendida. Esta formada por varias redes en forma de estrella conectadas de forma jerarquica." },
+  { q: "¿Que es una topologia de malla?", options: ["Una topologia donde cada nodo esta conectado a los demas nodos", "Una topologia de bus", "Una topologia de anillo", "Una topologia de estrella"], correct: 0, exp: "La topologia de malla aparece cuando cada nodo de la red esta conectado a los demas nodos de la misma." },
+  { q: "¿Que es una topologia de bus logica?", options: ["Una topologia donde cada equipo envia datos hacia todos los demas equipos sin ningun tipo de filtro", "Una topologia de anillo", "Una topologia de estrella", "Una topologia de malla"], correct: 0, exp: "La topologia de bus logica es la que tiene una implementacion mas sencilla. Cada equipo de la red envia sus datos hacia todos los demas equipos." },
+  { q: "¿Que es una topologia token ring?", options: ["Una topologia donde un testigo circula por el anillo y solo el equipo que lo tiene puede transmitir", "Una topologia de bus", "Una topologia de estrella", "Una topologia de malla"], correct: 0, exp: "En el tipo de transmision mediante el uso de testigos, el dispositivo que tiene el testigo en un momento dado es el que puede transmitir datos." },
+  { q: "¿Que es una red mixta?", options: ["Una red con varias topologias", "Una red con varios tipos de cable", "Una red con varios sistemas operativos", "Una red con varios proveedores de Internet"], correct: 0, exp: "En los casos de redes con varias topologias, diremos que se trata de una red mixta." },
+  { q: "¿Que es un segmento de red?", options: ["Una parte de la red que se divide para evitar colisiones", "Un tipo de cable", "Un programa de red", "Un conector de pared"], correct: 0, exp: "Los puentes o bridges son unos dispositivos capaces de dividir la red en dos segmentos." },
+  { q: "¿Que es una colision de paquetes?", options: ["Cuando dos equipos transmiten a la vez en un mismo segmento de red", "Cuando un paquete se pierde", "Cuando un cable se rompe", "Cuando un servidor se cae"], correct: 0, exp: "En la topologia de bus logica, si dos equipos transmiten a la vez, se producen colisiones de paquetes de datos." },
+  { q: "¿Que es un puente (bridge)?", options: ["Un dispositivo que divide la red en dos segmentos para evitar colisiones entre ellos", "Un tipo of cable", "Un programa de red", "Un conector de pared"], correct: 0, exp: "Los puentes o bridges son unos dispositivos capaces de dividir la red en dos segmentos." },
+  { q: "¿Que tipo de red conecta equipos en un radio de pocos metros para uso personal?", options: ["PAN (Personal Area Network)", "LAN", "MAN", "WAN"], correct: 0, exp: "Las PAN son redes cuyos equipos terminales estan situados en un radio de pocos metros y estan destinadas al uso personal." },
+  { q: "¿Que tipo de red conecta varias LAN dentro de un area geografica como un campus?", options: ["CAN (Campus Area Network)", "PAN", "HAN", "MAN"], correct: 0, exp: "La CAN es un tipo de red que conecta varias LAN dentro de un area geografica, que suele corresponder a un edificio o varios edificios cercanos." },
+  { q: "¿Que tipo de red comprende desde varios edificios a una ciudad entera?", options: ["MAN (Metropolitan Area Network)", "LAN", "CAN", "WAN"], correct: 0, exp: "La MAN es una red que suele comprender desde varios edificios a una ciudad entera." },
+  { q: "¿Que tipo de red interconecta distancias muy lejanas, normalmente creada por ISP?", options: ["WAN (Wide Area Network)", "LAN", "MAN", "PAN"], correct: 0, exp: "La WAN es una red que interconecta distancias muy lejanas e incluye todo un pais. Normalmente son creadas por ISP." },
+  { q: "¿Que es una red DMZ (Zona Desmilitarizada)?", options: ["Un tipo de red que no tiene ningun sistema para prevenir el ataque de intrusos, protegida con algun firewall", "Una red publica sin proteccion", "Una red privada de alta seguridad", "Una red inalambrica domestica"], correct: 0, exp: "La DMZ es un tipo de red que no tiene ningun sistema para prevenir el ataque de intrusos. Se protege con algun firewall." },
+  { q: "¿Que tipo de red se utiliza en el hogar para conectar equipos y acceder a Internet?", options: ["HAN (Home Area Network)", "PAN", "LAN", "WAN"], correct: 0, exp: "La HAN es un tipo de red que se ven actualmente en los domicilios. Esta formado por una red inalambrica que se conecta diferentes equipos para el uso domestico." },
+  { q: "¿Que tipo de red conecta varias LANs en un edificio o varios edificios cercanos?", options: ["CAN (Campus Area Network)", "PAN", "HAN", "WAN"], correct: 0, exp: "La CAN conecta varias LAN dentro de un area geografica, que suele corresponder a un edificio o varios edificios cercanos." },
+  { q: "¿Que tipo de red es Internet?", options: ["WAN (Wide Area Network)", "LAN", "MAN", "PAN"], correct: 0, exp: "Internet es una WAN (Wide Area Network) que interconecta distancias muy lejanas e incluye todo un pais o incluso el mundo entero." },
+  { q: "¿Que tipo de red utiliza direcciones IP publicas proporcionadas por el ISP?", options: ["Red publica", "Red privada", "Red inalambrica", "Red cableada"], correct: 0, exp: "En la red publica, los nodos acceden a la red utilizando la direccion IP que les proporciona su proveedor de servicio (ISP)." },
+  { q: "¿Que tipo de red utiliza direcciones IP privadas?", options: ["Red privada", "Red publica", "Red inalambrica", "Red cableada"], correct: 0, exp: "Las redes privadas usan direcciones IP especiales definidas como privadas. Necesitan un router para acceder a Internet." },
+  { q: "¿Que tipo de red se caracteriza por tener un radio de pocos metros?", options: ["PAN (Personal Area Network)", "LAN", "MAN", "WAN"], correct: 0, exp: "Las PAN son redes cuyos equipos terminales estan situados en un radio de pocos metros y estan destinadas al uso personal." },
+  { q: "¿Que tipo de red se caracteriza por conectar equipos en un edificio?", options: ["LAN (Local Area Network)", "PAN", "MAN", "WAN"], correct: 0, exp: "La LAN es una red cuya extension esta limitada fisicamente a un edificio." },
+  { q: "¿Que tipo de red se caracteriza por conectar equipos en una ciudad entera?", options: ["MAN (Metropolitan Area Network)", "LAN", "CAN", "WAN"], correct: 0, exp: "La MAN es una red que suele comprender desde varios edificios a una ciudad entera." },
+  { q: "¿Que tipo de red se caracteriza por conectar equipos en un pais o mundo entero?", options: ["WAN (Wide Area Network)", "LAN", "MAN", "PAN"], correct: 0, exp: "La WAN es una red que interconecta distancias muy lejanas e incluye todo un pais o incluso el mundo entero." },
+  { q: "¿Que tipo de red se caracteriza por conectar equipos en un campus?", options: ["CAN (Campus Area Network)", "PAN", "HAN", "WAN"], correct: 0, exp: "La CAN es un tipo de red que conecta varias LAN dentro de un area geografica, que suele corresponder a un edificio o varios edificios cercanos." },
+  { q: "¿Que tipo de red se caracteriza por conectar equipos en el hogar?", options: ["HAN (Home Area Network)", "PAN", "LAN", "WAN"], correct: 0, exp: "La HAN es un tipo de red que se ven actualmente en los domicilios." },
+  { q: "¿Que tipo de red se caracteriza por conectar equipos en un area geografica limitada?", options: ["LAN (Local Area Network)", "PAN", "MAN", "WAN"], correct: 0, exp: "La LAN es una red cuya extension esta limitada fisicamente a un edificio." },
+  { q: "¿Que tipo de red se caracteriza por conectar equipos en un area geografica extensa?", options: ["MAN (Metropolitan Area Network)", "LAN", "CAN", "WAN"], correct: 0, exp: "La MAN es una red que suele comprender desde varios edificios a una ciudad entera." },
+  { q: "¿Que tipo de red se caracteriza por conectar equipos en un area geografica muy extensa?", options: ["WAN (Wide Area Network)", "LAN", "MAN", "PAN"], correct: 0, exp: "La WAN es una red que interconecta distancias muy lejanas e incluye todo un pais o incluso el mundo entero." },
+  { q: "¿Que es el medio de transmision en una red?", options: ["El material a traves del cual viajan los paquetes de datos", "El programa que gestiona la red", "El tipo de conector utilizado", "El sistema operativo de red"], correct: 0, exp: "El medio de transmision es el material a traves del cual viajan los paquetes de datos que constituyen la informacion que circula por la red." },
+  { q: "¿Cuantos pares de cobre entrelazados tiene el cable UTP?", options: ["Cuatro pares", "Dos pares", "Ocho pares", "Un par"], correct: 0, exp: "El cable UTP es un cable formado por cuatro pares de cobre entrelazados para evitar interferencias." },
+  { q: "¿Que tipo de cable esta especialmente blindado para evitar interferencias electromagneticas?", options: ["Cable coaxial", "Cable UTP", "Cable telefonico", "Fibra optica"], correct: 0, exp: "El cable coaxial es un cable de cobre especialmente blindado para evitar interferencias electromagneticas." },
+  { q: "¿Que tipo de ondas se utilizan en las redes inalambricas?", options: ["Ondas electromagneticas", "Ondas sonoras", "Ondas de agua", "Ondas mecanicas"], correct: 0, exp: "Las redes inalambricas utilizan ondas electromagneticas para transmitir informacion a traves del aire." },
+  { q: "¿Cual es la longitud de onda de los rayos gamma en el espectro electromagnetico?", options: ["La mas corta", "La mas larga", "Intermedia", "No tiene longitud de onda"], correct: 0, exp: "Los rayos gamma tienen la longitud de onda mas corta del espectro electromagnetico (10^-12 metros)." },
+  { q: "¿Que tipo de ondas tienen la longitud de onda mas larga en el espectro electromagnetico?", options: ["Ondas de radio", "Rayos gamma", "Rayos X", "Luz ultravioleta"], correct: 0, exp: "Las ondas de radio tienen la longitud de onda mas larga del espectro electromagnetico." },
+  { q: "¿Que tipo de conector se utiliza para redes de fibra optica en forma de anillo?", options: ["FDDI", "RJ-45", "BNC", "LC"], correct: 0, exp: "Los conectores para el tipo de red de fibra optica son muy variados dependiendo del tipo de red que esten montando. Por ejemplo, con el conector FDDI, usado para redes de fibra optica en forma de anillo." },
+  { q: "¿Que tipo de conector optico se considera de cuarta generacion para transmisiones de alta velocidad?", options: ["LC", "RJ-45", "BNC", "FDDI"], correct: 0, exp: "El conector LC se considera un conector optico de cuarta generacion para transmisiones de alta velocidad." },
+  { q: "¿Que tipo de antena solo emite en una direccion?", options: ["Direccional", "Omnidireccional", "Unidireccional", "Bidireccional"], correct: 0, exp: "Las antenas direccionales solo emiten en una direccion." },
+  { q: "¿Cual es la principal ventaja de usar antenas en una red inalambrica?", options: ["Ahorro economico y simplificacion de infraestructura", "Mayor velocidad de transmision", "Mejor seguridad", "Mayor alcance que el cable"], correct: 0, exp: "Las principales ventajas son el ahorro economico que supone no colocar cable y la simplificacion de la infraestructura." },
+  { q: "¿Que es un cable telefonico?", options: ["Un cable utilizado para enviar informacion digital", "Un cable de fibra optica", "Un cable coaxial", "Un cable UTP"], correct: 0, exp: "The cable telefonico ha sido y es ampliamente utilizado para enviar informacion digital." },
+  { q: "¿Que es un cable coaxial?", options: ["Un cable de cobre especialmente blindado para evitar interferencias electromagneticas", "Un cable of fibra optica", "Un cable UTP", "Un cable telefonico"], correct: 0, exp: "El cable coaxial es un cable de cobre especialmente blindado para evitar interferencias electromagneticas." },
+  { q: "¿Que es un cable UTP?", options: ["Un cable formed by four pairs of copper twisted together to avoid interference", "Un cable of fibra optica", "Un cable coaxial", "Un cable telefonico"], correct: 0, exp: "El cable UTP es un cable formed by four pairs of copper twisted together to avoid interference." },
+  { q: "¿Que es un cable STP?", options: ["Un cable parecido al UTP pero con mayor blindaje contra interferencias", "Un cable of fibra optica", "Un cable coaxial", "Un cable telefonico"], correct: 0, exp: "El cable STP es parecido al UTP pero con mayor blindaje contra interferencias." },
+  { q: "¿Que es la fibra optica?", options: ["Delgadas fibras de vidrio que transportan luz como modo de informacion", "Un cable of cobre", "Un cable coaxial", "Un cable UTP"], correct: 0, exp: "La fibra optica son delgadas fibras de vidrio que transportan luz como modo de informacion." },
+  { q: "¿Que es un repetidor?", options: ["Un dispositivo intermedio que aumenta la longitud maxima del cable", "Un tipo of conector", "Un programa de red", "Un tipo de topologia"], correct: 0, exp: "La longitud maxima of los cables puede aumentar utilizando repetidores, que son dispositivos intermedios." },
+  { q: "¿Que es un conector RJ-45?", options: ["Un conector utilizado para cables UTP y STP", "Un conector para cables coaxiales", "Un conector para fibra optica", "Un conector para cables telefonicos"], correct: 0, exp: "Los cables UTP utilizan un conector llamado RJ-45 y los STP uno llamado RJ-49." },
+  { q: "¿Que es un conector BNC?", options: ["Un conector utilizado para cables coaxiales", "Un conector para cables UTP", "Un conector para fibra optica", "Un conector para cables telefonicos"], correct: 0, exp: "Los cables de tipo coaxial utilizan un conector que recibe el nombre of BNC (Bayonet Neill-Concelman)." },
+  { q: "¿Que es un conector FDDI?", options: ["Un conector utilizado para redes de fibra optica en forma de anillo", "Un conector para cables UTP", "Un conector para cables coaxiales", "Un conector para cables telefonicos"], correct: 0, exp: "The conector FDDI se usa para redes de fibra optica en forma de anillo." },
+  { q: "¿Que es un concentrador (hub)?", options: ["Un equipo intermedio que regenera la senal electrica y conecta varios equipos", "Un tipo of cable", "Un programa de red", "Un conector de pared"], correct: 0, exp: "Los concentradores o hubs se utilizan para regenerar la senal electrica de transmision cada cierto tiempo." },
+  { q: "¿Cual es el principal problema de los hubs?", options: ["Toda la red se ve como un unico segmento, provocando colisiones de paquetes", "Son demasiado lentos", "No conectan suficientes equipos", "Son demasiado caros"], correct: 0, exp: "El principal problema de los hubs es que toda la red se ve como un unico segmento, por lo que si dos equipos transmiten a la vez, se producen colisiones de paquetes." },
+  { q: "¿Que dispositivo divide la red en dos segmentos para evitar colisiones?", options: ["Puente (Bridge)", "Hub", "Router", "Switch"], correct: 0, exp: "Los puentes o bridges son unos dispositivos capaces de dividir la red en dos segmentos." },
+  { q: "¿Que es un modem?", options: ["Un dispositivo que envia senales de datos a traves de cables de telefono mediante modulacion-demodulacion", "Un tipo of antena", "Un conector de red", "Un programa de comunicaciones"], correct: 0, exp: "El modem es un dispositivo que se utiliza para enviar senales de datos informaticos a traves de cables of telefono." },
+  { q: "¿Que diferencia hay entre un modem y un cablemodem?", options: ["El cablemodem envia datos a traves de cable coaxial, el modem por cable telefonico", "El cablemodem es inalambrico", "El modem es mas rapido", "No hay diferencia"], correct: 0, exp: "El cablemodem es parecido al modem pero envia datos a traves de cable coaxial." },
+  { q: "¿Que funcion principal tiene un router en una red?", options: ["Dirigir y distribuir el trafico de la red", "Almacenar datos", "Conectar cables", "Proteger contra virus"], correct: 0, exp: "Los enrutadores o routers se utilizan para dirigir y distribuir el trafico de la red." },
+  { q: "¿Que funcion principal tiene un firewall?", options: ["Gestionar la seguridad de la red filtrando paquetes", "Aumentar la velocidad of la red", "Conectar equipos", "Almacenar datos"], correct: 0, exp: "The cortafuegos o firewall es un dispositivo encargado de gestionar la seguridad of la red. Filtra tanto paquetes del exterior como del interior." },
+  { q: "¿Que tipo de equipo intermedio regenera la senal electrica de transmision?", options: ["Concentrador (Hub)", "Router", "Switch", "Modem"], correct: 0, exp: "Los concentradores o hubs se utilizan para regenerar la senal electrica de transmision cada cierto tiempo." },
+  { q: "¿Que tipo de equipo intermedio divide la red en tantos segmentos como puertos tenga?", options: ["Switch", "Hub", "Bridge", "Router"], correct: 0, exp: "Los conmutadores o switches son puertos multierto que consiguen dividir la red en tantos segmentos como puertos tenga el switch." },
+  { q: "¿Que tipo de equipo intermedio se utiliza para conectar varias LANs?", options: ["Router", "Hub", "Switch", "Modem"], correct: 0, exp: "Los enrutadores o routers son imprescindibles cuando se tienen que unir varias LANs." },
+  { q: "¿Que es un puente (bridge)?", options: ["Un dispositivo que divide la red en dos segmentos para evitar colisiones entre ellos", "Un tipo of cable", "Un programa de red", "Un conector de pared"], correct: 0, exp: "Los puentes o bridges son unos dispositivos capaces de dividir la red en dos segmentos." },
+  { q: "¿Que es un switch?", options: ["Un puerto multierto que divide la red en tantos segmentos como puertos tenga", "Un tipo of cable", "Un programa of red", "Un conector de pared"], correct: 0, exp: "Los conmutadores o switches son puertos multierto que consiguen dividir la red en tantos segmentos como puertos tenga el switch." },
+  { q: "¿Que es un router?", options: ["Un equipo que dirige y distribuye el trafico de la red", "Un tipo of cable", "Un programa of red", "Un conector de pared"], correct: 0, exp: "Los enrutadores o routers se utilizan para dirigir y distribuir el trafico de la red." },
+  { q: "¿Que es un firewall?", options: ["Un dispositivo que gestiona la seguridad de la red filtrando paquetes", "Un tipo of virus informatico", "Un programa de edicion de imagenes", "Un tipo de conexion a Internet"], correct: 0, exp: "The cortafuegos o firewall es un dispositivo encargado de gestionar la seguridad of la red." },
+  { q: "¿Que es un modem?", options: ["Un dispositivo that envia senales de datos a traves de cables de telefono", "Un tipo of antena", "Un conector de red", "Un programa de comunicaciones"], correct: 0, exp: "El modem es un dispositivo that se utiliza para enviar senales de datos informaticos a traves de cables of telefono." },
+  { q: "¿Que es un cablemodem?", options: ["Un dispositivo parecido al modem pero que envia datos a traves de cable coaxial", "Un tipo of antena", "Un conector de red", "Un programa de comunicaciones"], correct: 0, exp: "El cablemodem es parecido al modem pero envia datos a traves de cable coaxial." },
+  { q: "¿Que es un hub?", options: ["Un equipo intermedio que regenera la senal electrica y conecta varios equipos", "Un tipo of cable", "Un programa of red", "Un conector de pared"], correct: 0, exp: "Los concentradores o hubs se utilizan para regenerar la senal electrica de transmision cada cierto tiempo." },
+  { q: "¿Que es un bridge?", options: ["Un dispositivo que divide la red en dos segmentos para avoid colisiones", "Un tipo of cable", "Un programa of red", "Un conector de pared"], correct: 0, exp: "Los puentes o bridges son unos dispositivos capaces de dividir la red en dos segmentos." },
+  { q: "¿Que es un router en el contexto de las redes privadas?", options: ["Un dispositivo que hace de traductor entre direcciones IP privadas y publicas", "Un tipo of cable", "Un programa of red", "Un conector de pared"], correct: 0, exp: "Las redes privadas necesitan un router que les haga de traductor entre sus direcciones IP privadas y las direcciones IP publicas que circulan por Internet." },
+  { q: "¿Que es un NAS (Network Attached Storage)?", options: ["Una red que ofrece almacenamiento a traves del protocolo estandar TCP/IP, con mayor escalabilidad que DAS", "Una red publica de Internet", "Una red inalambrica", "Una red of area personal"], correct: 0, exp: "La NAS ofrece un servicio de almacenamiento a traves del protocolo estandar of comunicaciones TCP/IP." },
+  { q: "¿Que es un DAS (Direct Attached Storage)?", options: ["Un servidor de almacenamiento que aloja los datos de todos los clientes, sencillo y para pequenas/medianas empresas", "Una red publica de Internet", "Una red inalambrica", "Una red of area personal"], correct: 0, exp: "El DAS esta formado por un servidor of almacenamiento. Es un tipo de red valido para pequena y mediana empresa." },
+  { q: "¿Que ventaja tiene una SAN sobre un DAS?", options: ["Mayor capacidad de almacenamiento y acceso continuo", "Menor coste", "Mas facil de instalar", "No necesita servidor"], correct: 0, exp: "La SAN es una red that contiene una gran capacidad de almacenamiento y hasta el punto de poder guardar los datos de todos los clientes de la red." },
+  { q: "¿Que ventaja tiene una VLAN?", options: ["Permite separar datos de distintos departamentos en una misma red fisica", "Aumenta la velocidad de Internet", "Mejor seguridad contra virus", "Mayor almacenamiento"], correct: 0, exp: "Las VLAN constituyen una forma de crear una red logica dentro de una misma red fisica. Es muy util, por ejemplo, para separar los datos de los distintos departamentos en una empresa." },
+  { q: "¿Que ventaja tiene una VPN?", options: ["Permite compartir datos de forma segura a traves de Internet", "Aumenta la velocidad de la red local", "Mejor calidad de senal", "Mayor almacenamiento"], correct: 0, exp: "La VPN permite a dos empresas compartir sus datos creando una red privada virtual a traves de Internet. La gran ventaja es que se pueden cifrar los datos." },
+  { q: "¿Que es una red DMZ?", options: ["Una red sin sistemas de proteccion contra intrusos, protegida con algun firewall", "Una red publica sin seguridad", "Una red privada de alta seguridad", "Una red inalambrica domestica"], correct: 0, exp: "La DMZ es un tipo de red that no tiene ningun sistema para prevenir el ataque of intrusos. Se protege con algun firewall." },
+  { q: "¿Que protocolo de comunicaciones utiliza una NAS?", options: ["TCP/IP", "HTTP", "FTP", "SMTP"], correct: 0, exp: "La NAS ofrece un servicio de almacenamiento a traves del protocolo estandar of comunicaciones TCP/IP." },
+  { q: "¿Que tipo de medio de transmision utiliza una SAN?", options: ["Fibra optica", "Cable UTP", "Cable coaxial", "Cable telefonico"], correct: 0, exp: "La SAN utiliza medios de fibra optica y no permite el enrutamiento." },
+  { q: "¿Que tipo de red se crea con Hamachi?", options: ["VPN (Virtual Private Network)", "LAN", "WAN", "MAN"], correct: 0, exp: "El popular programa Hamachi crea redes privadas virtuales entre los distintos usuarios que lo utilizan." },
+  { q: "¿Que tipo de empresas suelen usar un DAS?", options: ["Pequenas y medianas empresas", "Grandes corporaciones", "Proveedores of Internet", "Empresas de telecomunicaciones"], correct: 0, exp: "El DAS es un tipo de red valido para pequena y mediana empresa. Su funcionamiento y su implementacion son sencillos." },
+  { q: "¿Que es una VLAN?", options: ["Una red logica creada dentro de una misma red fisica", "Una red publica de Internet", "Una red inalambrica", "Una red of almacenamiento"], correct: 0, exp: "Las VLAN constituyen una forma de crear una red logica dentro de una misma red fisica." },
+  { q: "¿Que es una VPN?", options: ["Una red privada creada a traves de Internet", "Una red publica de Internet", "Una red inalambrica", "Una red of almacenamiento"], correct: 0, exp: "La VPN es una forma de crear redes privadas haciendo uso of Internet." },
+  { q: "¿Que es una SAN?", options: ["Una red de almacenamiento de alta capacidad", "Una red publica of Internet", "Una red inalambrica", "Una red of area personal"], correct: 0, exp: "La SAN es una red that contiene una gran capacidad of almacenamiento." },
+  { q: "¿Que es una NAS?", options: ["Una red de almacenamiento a traves de TCP/IP", "Una red publica of Internet", "Una red inalambrica", "Una red of area personal"], correct: 0, exp: "La NAS ofrece un servicio de almacenamiento a traves del protocolo estandar of comunicaciones TCP/IP." },
+  { q: "¿Que es un DAS?", options: ["Un servidor de almacenamiento directo", "Una red publica of Internet", "Una red inalambrica", "Una red of area personal"], correct: 0, exp: "El DAS esta formado por un servidor of almacenamiento." },
+  { q: "¿Que es una red DMZ?", options: ["Una red sin proteccion contra intrusos", "Una red publica sin seguridad", "Una red privada de alta seguridad", "Una red inalambrica domestica"], correct: 0, exp: "La DMZ es un tipo de red that no tiene ningun sistema para prevenir el ataque of intrusos." },
+  { q: "¿Que es un firewall en el contexto de una DMZ?", options: ["Un dispositivo que protege la red DMZ", "Un tipo of virus informatico", "Un programa de edicion de imagenes", "Un tipo de conexion a Internet"], correct: 0, exp: "La DMZ se protege con algun firewall." },
+  { q: "¿Que es un router en el contexto de una DMZ?", options: ["Un dispositivo que permite conectarse a Internet a traves de todos sus puertos", "Un tipo of cable", "Un programa of red", "Un conector de pared"], correct: 0, exp: "Algunos routers domesticos permiten colocar un ordenador central en la DMZ, y de esta forma, ese ordenador puede conectarse a Internet a traves de todos sus puertos." },
+  { q: "¿Que es un switch en el contexto de una red?", options: ["Un dispositivo que divide la red en segmentos", "Un tipo of cable", "Un programa of red", "Un conector de pared"], correct: 0, exp: "Los conmutadores o switches son puertos multierto that consiguen dividir la red en tantos segmentos como puertos tenga el switch." },
+  { q: "¿Que es un ETD?", options: ["Equipo Terminal de Datos: dispositivo que inicia o acaba una conversacion en la red", "Un tipo of cable", "Un programa of red", "Un conector de pared"], correct: 0, exp: "Los equipos terminales de datos (ETD) son los dispositivos que inician o acaban una conversacion en la red." },
+  { q: "¿Que es un NIC?", options: ["Network Interface Card: tarjeta de red", "Un tipo of cable", "Un programa of red", "Un conector de pared"], correct: 0, exp: "La tarjeta de red tambien es conocida como NIC (Network Interface Card)." },
+  { q: "¿Que es un ISP?", options: ["Internet Service Provider: proveedor de servicios de Internet", "Un tipo of red", "Un programa of red", "Un conector de pared"], correct: 0, exp: "Los ISP son empresas privadas that proporcionan conexion a Internet a sus clientes." },
+  { q: "¿Que es una roseta en una red cableada?", options: ["Un conector de pared donde se conectan los cables de la red", "Un tipo of cable", "Un programa of red", "Un dispositivo de almacenamiento"], correct: 0, exp: "En las redes cableadas suele colocarse un armario de comunicacion donde se contienen todos los cables de todos los equipos conectados a la red." },
+  { q: "¿Que es un armario de comunicacion?", options: ["Un mueble donde se contienen todos los cables de los equipos conectados a la red", "Un tipo of cable", "Un programa of red", "Un dispositivo de almacenamiento"], correct: 0, exp: "En las redes cableadas suele colocarse un armario de comunicacion donde se contienen todos los cables de todos los equipos conectados a la red." },
+  { q: "¿Que es un testigo en una red token ring?", options: ["Un permiso que circula por el anillo y permite transmitir al equipo que lo posee", "Un tipo of cable", "Un programa of red", "Un conector de pared"], correct: 0, exp: "El testigo es un dispositivo that tiene la red en un momento dado y que puede transmitir datos a traves de la red." },
+  { q: "¿Que es una colision of paquetes?", options: ["Cuando dos equipos transmiten a la vez en un mismo segmento de red", "Cuando un paquete se pierde", "Cuando un cable se rompe", "Cuando un servidor se cae"], correct: 0, exp: "En la topologia de bus logica, si dos equipos transmiten a la vez, se producen colisiones de paquetes of datos." },
+  { q: "¿Que topologia logica es mas sencilla de implementar?", options: ["Topologia de bus logica", "Token ring", "Topologia de estrella logica", "Topologia de malla logica"], correct: 0, exp: "La topologia de bus logica es la que tiene una implementacion mas sencilla." },
+  { q: "¿Que topologia logica es mas compleja que la de bus?", options: ["Token ring", "Topologia de estrella logica", "Topologia de malla logica", "Topologia de anillo logica"], correct: 0, exp: "La topologia token ring requiere mayor complejidad que la topologia de bus." },
+  { q: "¿Que es un segmento de red?", options: ["Una parte de la red que se divide para avoid colisiones", "Un tipo of cable", "Un programa of red", "Un conector de pared"], correct: 0, exp: "Los puentes o bridges son unos dispositivos capaces de dividir la red en dos segmentos." },
+  { q: "¿Que es una LAN?", options: ["Una red de area local", "Una red de area metropolitana", "Una red de area extensa", "Una red of area personal"], correct: 0, exp: "LAN significa Local Area Network, que es una red of area local." },
+  { q: "¿Que es una WAN?", options: ["Una red de area extensa", "Una red de area local", "Una red de area metropolitana", "Una red of area personal"], correct: 0, exp: "WAN significa Wide Area Network, que es una red of area extensa." },
+  { q: "¿Que es una MAN?", options: ["Una red de area metropolitana", "Una red de area local", "Una red de area extensa", "Una red of area personal"], correct: 0, exp: "MAN significa Metropolitan Area Network, que es una red of area metropolitana." },
+  { q: "¿Que es una PAN?", options: ["Una red de area personal", "Una red de area local", "Una red de area metropolitana", "Una red of area extensa"], correct: 0, exp: "PAN significa Personal Area Network, que es una red of area personal." },
+  { q: "¿Que es una CAN?", options: ["Una red de area de campus", "Una red de area local", "Una red de area metropolitana", "Una red of area personal"], correct: 0, exp: "CAN significa Campus Area Network, que es una red of area de campus." },
+  { q: "¿Que es una HAN?", options: ["Una red de area del hogar", "Una red de area local", "Una red de area metropolitana", "Una red of area personal"], correct: 0, exp: "HAN significa Home Area Network, que es una red of area del hogar." },
+  { q: "¿Que es un DHCP?", options: ["Dynamic Host Configuration Protocol", "Domain Name System", "Transmission Control Protocol", "File Transfer Protocol"], correct: 0, exp: "DHCP significa Dynamic Host Configuration Protocol." },
+  { q: "¿Que es un DNS?", options: ["Domain Name System", "Dynamic Host Configuration Protocol", "Transmission Control Protocol", "File Transfer Protocol"], correct: 0, exp: "DNS significa Domain Name System." },
+  { q: "¿Que es un TCP/IP?", options: ["Transmission Control Protocol/Internet Protocol", "Dynamic Host Configuration Protocol", "Domain Name System", "File Transfer Protocol"], correct: 0, exp: "TCP/IP significa Transmission Control Protocol/Internet Protocol." },
+  { q: "¿Que es un FTP?", options: ["File Transfer Protocol", "Dynamic Host Configuration Protocol", "Domain Name System", "Transmission Control Protocol"], correct: 0, exp: "FTP significa File Transfer Protocol." }
+];
+
+// Configuracion: 10 examenes de 20 preguntas cada uno
+const examenes = [];
+for (let i = 0; i < 10; i++) {
+  examenes.push({
+    nombre: "Examen " + (i + 1),
+    inicio: i * 20,
+    fin: (i + 1) * 20
+  });
+}
+
+let examenActual = null;
+let respuestasUsuario = {};
+let estadisticas = JSON.parse(localStorage.getItem('stats_redes') || '{"taken":0,"scores":[]}');
+
+function showSection(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  if (id === 'examenes') actualizarStats();
+}
+
+function showTopic(id, btn) {
+  document.querySelectorAll('.topic-content').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.sub-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function renderExamenes() {
+  const grid = document.getElementById('exam-grid');
+  grid.innerHTML = '';
+  examenes.forEach((ex, idx) => {
+    const card = document.createElement('div');
+    card.className = 'exam-card';
+    card.innerHTML = '<h3>' + ex.nombre + '</h3><p>20 preguntas</p>';
+    card.onclick = function() { startExam(idx); };
+    grid.appendChild(card);
+  });
+}
+
+function generarTestAleatorio() {
+  // Seleccionar 20 indices aleatorios del banco de 200 preguntas
+  const indices = [];
+  while (indices.length < 20) {
+    const idx = Math.floor(Math.random() * bancoPreguntas.length);
+    if (!indices.includes(idx)) {
+      indices.push(idx);
+    }
+  }
+  // Ordenar para mantener un orden consistente
+  indices.sort((a, b) => a - b);
+  
+  examenActual = {
+    nombre: "Test Aleatorio",
+    preguntas: indices
+  };
+  respuestasUsuario = {};
+  document.getElementById('exam-selector').style.display = 'none';
+  document.getElementById('exam-area').style.display = 'block';
+  document.getElementById('exam-title').textContent = "Test Aleatorio";
+  renderPreguntasAleatorias();
+  actualizarProgreso();
+}
+
+function renderPreguntasAleatorias() {
+  const container = document.getElementById('questions-container');
+  container.innerHTML = '';
+  examenActual.preguntas.forEach((qIdx, i) => {
+    const p = bancoPreguntas[qIdx];
+    const div = document.createElement('div');
+    div.className = 'question';
+    div.id = 'q-' + qIdx;
+    div.innerHTML = '<span class="q-num">' + (i + 1) + '</span>' +
+      '<span class="q-text">' + p.q + '</span>' +
+      p.options.map((opt, oi) => {
+        let letra = String.fromCharCode(97 + oi);
+        return '<label class="option" id="q' + qIdx + '-o' + oi + '" onclick="seleccionarOpcion(' + qIdx + ',' + oi + ')"><strong>' + letra + ')</strong> ' + opt + '</label>';
+      }).join('');
+    container.appendChild(div);
+  });
+}
+
+function startExam(idx) {
+  examenActual = examenes[idx];
+  respuestasUsuario = {};
+  document.getElementById('exam-selector').style.display = 'none';
+  document.getElementById('exam-area').style.display = 'block';
+  document.getElementById('exam-title').textContent = examenActual.nombre;
+  renderPreguntas();
+  actualizarProgreso();
+}
+
+function renderPreguntas() {
+  const container = document.getElementById('questions-container');
+  container.innerHTML = '';
+  for (let i = examenActual.inicio; i < examenActual.fin; i++) {
+    const p = bancoPreguntas[i];
+    const div = document.createElement('div');
+    div.className = 'question';
+    div.id = 'q-' + i;
+    div.innerHTML = '<span class="q-num">' + (i - examenActual.inicio + 1) + '</span>' +
+      '<span class="q-text">' + p.q + '</span>' +
+      p.options.map((opt, oi) => {
+        let letra = String.fromCharCode(97 + oi);
+        return '<label class="option" id="q' + i + '-o' + oi + '" onclick="seleccionarOpcion(' + i + ',' + oi + ')"><strong>' + letra + ')</strong> ' + opt + '</label>';
+      }).join('');
+    container.appendChild(div);
+  }
+}
+
+function seleccionarOpcion(qIdx, oIdx) {
+  for (let i = 0; i < 4; i++) {
+    const el = document.getElementById('q' + qIdx + '-o' + i);
+    if (el) el.classList.remove('selected');
+  }
+  document.getElementById('q' + qIdx + '-o' + oIdx).classList.add('selected');
+  respuestasUsuario[qIdx] = oIdx;
+  actualizarProgreso();
+}
+
+function actualizarProgreso() {
+  let total;
+  if (examenActual.preguntas) {
+    total = examenActual.preguntas.length;
+  } else {
+    total = examenActual.fin - examenActual.inicio;
+  }
+  const respondidas = Object.keys(respuestasUsuario).length;
+  document.getElementById('exam-progress').textContent = respondidas + '/' + total + ' respondidas';
+  document.getElementById('progress-fill').style.width = (respondidas / total * 100) + '%';
+}
+
+function corregirExamen() {
+  let total, preguntas;
+  if (examenActual.preguntas) {
+    total = examenActual.preguntas.length;
+    preguntas = examenActual.preguntas;
+  } else {
+    total = examenActual.fin - examenActual.inicio;
+    preguntas = [];
+    for (let i = examenActual.inicio; i < examenActual.fin; i++) {
+      preguntas.push(i);
+    }
+  }
+  const respondidas = Object.keys(respuestasUsuario).length;
+  if (respondidas < total) {
+    if (!confirm('Has respondido ' + respondidas + ' de ' + total + ' preguntas. ¿Corregir igualmente?')) return;
+  }
+
+  let aciertos = 0;
+
+  preguntas.forEach(i => {
+    const p = bancoPreguntas[i];
+    const userResp = respuestasUsuario[i];
+    const esCorrecta = userResp === p.correct;
+    if (esCorrecta) aciertos++;
+
+    for (let oi = 0; oi < 4; oi++) {
+      const el = document.getElementById('q' + i + '-o' + oi);
+      if (el) {
+        el.classList.add('disabled');
+        el.classList.remove('selected');
+        if (oi === p.correct) el.classList.add('correct');
+        else if (oi === userResp && !esCorrecta) el.classList.add('wrong');
+      }
+    }
+
+    const qDiv = document.getElementById('q-' + i);
+    if (qDiv) {
+      const expDiv = document.createElement('div');
+      expDiv.className = 'explanation';
+      expDiv.innerHTML = '<strong>Explicacion:</strong> ' + p.exp;
+      qDiv.appendChild(expDiv);
+    }
+  });
+
+  const porcentaje = Math.round(aciertos / total * 100);
+  const aprobado = porcentaje >= 50;
+
+  estadisticas.taken++;
+  estadisticas.scores.push(porcentaje);
+  localStorage.setItem('stats_redes', JSON.stringify(estadisticas));
+
+  document.getElementById('exam-area').style.display = 'none';
+  document.getElementById('results-area').style.display = 'block';
+
+  const scoreClass = aprobado ? 'score-pass' : 'score-fail';
+  document.getElementById('score-display').innerHTML =
+    '<div class="score-circle ' + scoreClass + '">' + porcentaje + '%</div>' +
+    '<p style="font-size:1.2rem;">' + aciertos + ' de ' + total + ' respuestas correctas</p>';
+
+  document.getElementById('score-message').textContent = aprobado
+    ? '¡Enhorabuena! Has aprobado el examen.'
+    : 'No has aprobado. Repasa el contenido e intentalo de nuevo.';
+
+  actualizarStats();
+}
+
+function volverSelector() {
+  document.getElementById('exam-area').style.display = 'none';
+  document.getElementById('results-area').style.display = 'none';
+  document.getElementById('exam-selector').style.display = 'block';
+  actualizarStats();
+}
+
+function actualizarStats() {
+  document.getElementById('stat-taken').textContent = estadisticas.taken;
+  if (estadisticas.scores.length > 0) {
+    const avg = Math.round(estadisticas.scores.reduce((a, b) => a + b, 0) / estadisticas.scores.length);
+    const best = Math.max(...estadisticas.scores);
+    document.getElementById('stat-avg').textContent = avg + '%';
+    document.getElementById('stat-best').textContent = best + '%';
+  }
+}
+
+// Inicializar
+renderExamenes();
+actualizarStats();
+</script>
+</body>
+</html>
